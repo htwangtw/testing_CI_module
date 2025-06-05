@@ -1,0 +1,36 @@
+---
+on:
+  push:
+    branches:
+    - main
+  pull_request:
+    branches:
+    - main
+
+defaults:
+  run:
+    shell: bash
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  test-package:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: 3
+    - name: Display Python version
+      run: python -c "import sys; print(sys.version)"
+    - name: Update pip
+      run: pip install --upgrade pip
+    - name: Install task package
+      run: pip install -r requirements.txt
+    - name: Run tests
+      run: |
+        pytest main.py
